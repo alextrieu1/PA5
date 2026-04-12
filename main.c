@@ -72,12 +72,12 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
     else{
 
         //element should be inserted to the right
-        if(strcmp(value->cat->name, root->cat->name) < 0){
+        if(strcmp(value->cat->name, root->cat->name) > 0){
             if(root->right != NULL)    
                 root->right = insert(root->right, value);
             else
                 root->right = value;
-        } else if(strcmp(value->cat->name, root->cat->name) > 0) {
+        } else if(strcmp(value->cat->name, root->cat->name) < 0) {
             //element should be inserted to the left
             if(root->left != NULL)
                 root->left = insert(root->left, value);
@@ -85,7 +85,8 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
                 root->left = value;
         } else {
             //root and value have the same name
-            root = compareTraits(root, value);
+            if(compareTraits(root,value) == value)
+                root->cat = value->cat;
         }
     } 
 
@@ -93,13 +94,11 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
 }
 
 BST_Node* compareTraits(BST_Node* root, BST_Node* value){
-    Cat* t1 = malloc(sizeof(Cat));
-    Cat* t2 = malloc(sizeof(Cat));
+    Cat* t1 = root->cat;
+    Cat* t2 = value->cat;
 
     //Counters
     int n1 = 0, n2 = 0;
-    t1 = root->cat;
-    t2 = value->cat;
 
     //Finding number of traits 
     for(int i = 0; i < NUM_TRAITS; i++){
