@@ -38,8 +38,9 @@ void kthElement(BST_Node *root, int value, int totalSize); //Finds the kth eleme
 void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, int *count);//Look for cats with the traits we're looking for
 void printTraits(BST_Node *root, int traitIndex, int traitValue);//Prints the results from findCats
 void deleteTraits(BST_Node *root, int traitIndex, int traitValue);//Deletes the results from findCats
-
+void inOrder(BST_Node *root);//Prints the binary tree alphabetically 
 void printNode(BST_Node *node);//Prints the name, charmscore, and subtree size of a node
+void freePostOrder(BST_Node *root);//Frees the entire binary tree in post order
 void freeNode(BST_Node *node);//Free a node
 
 Cat* createCat(void){
@@ -466,6 +467,14 @@ void printNode(BST_Node *node){
     printf("%s %d %d\n", node->cat->name, node->cat->charm, node->subtree_size);
 }
 
+void freePostOrder(BST_Node *root){
+    if(root != NULL){
+        freePostOrder(root->left);
+        freePostOrder(root->right);
+        freeNode(root);
+    }
+}
+
 void freeNode(BST_Node *node){
     free(node->cat->name);
     free(node->cat->breed);
@@ -510,6 +519,6 @@ int main(void){
         }
     }
 
-    
+    freePostOrder(root);
     return 0;
 }
