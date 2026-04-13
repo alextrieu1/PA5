@@ -1,0 +1,5 @@
+3
+1 kitty siamese 5 1 0 0 0 0
+1 tiger bengal 7 0 1 0 0 0
+6
+

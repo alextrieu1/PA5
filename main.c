@@ -42,6 +42,7 @@ void inOrder(BST_Node *root);//Prints the binary tree alphabetically
 void printNode(BST_Node *node);//Prints the name, charmscore, and subtree size of a node
 void freePostOrder(BST_Node *root);//Frees the entire binary tree in post order
 void freeNode(BST_Node *node);//Free a node
+BST_Node* deletePreserveCat(BST_Node *root, char name[]); // Deletes a node but preserves the cat pointer
 
 Cat* createCat(void){
     char name[MAX_NAME], breed[MAX_NAME];
@@ -92,23 +93,21 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
         if(strcmp(value->cat->name, root->cat->name) > 0){
             if(root->right != NULL)    
                 root->right = insert(root->right, value);
-            else
+            else {
                 root->right = value;
-
-            //Print insertion confirmation
-            int depth = heightFromRoot(root,value);
-            printf("Insert: %d\n", depth);
+                int depth = heightFromRoot(root,value);
+                printf("Insert: %d\n", depth);
+            }
         } else if(strcmp(value->cat->name, root->cat->name) < 0) {
 
             //element should be inserted to the left
             if(root->left != NULL)
                 root->left = insert(root->left, value);
-            else 
+            else {
                 root->left = value;
-        
-            //Print insertion confirmation
-            int depth = heightFromRoot(root,value);
-            printf("Insert: %d\n", depth);
+                int depth = heightFromRoot(root,value);
+                printf("Insert: %d\n", depth);
+            }
         } else { //root and value have the same name
             
             // If value has more traits, replace root's data with value's
@@ -145,23 +144,18 @@ int heightFromRoot(BST_Node *root, BST_Node *node){
     }
 
     // Node is on the right
-    if(strcmp(node->cat->name, root->cat->name) > 0){
-        int h = (heightFromRoot(root->right, node));
-
-        //If h == -1, the node was never found
-        if(h == -1)
-            return -1;
-        else 
-            return h + 1;
+    int cmp = strcmp(node->cat->name, root->cat->name);
+    int h;
     
-    //Node is on the left
-    } else if (strcmp(node->cat->name, root->cat->name) < 0){
-        int h = (heightFromRoot(root->left, node)); 
-        if(h == -1)
-            return -1;
-        else 
-            return h + 1;
-    }
+    if(cmp > 0)
+        h = heightFromRoot(root->right, node);
+    else 
+        h = heightFromRoot(root->left, node);
+
+    if(h == -1)
+        return -1;
+    else
+        return h + 1;
 }
 
 BST_Node* compareTraits(BST_Node* root, BST_Node* value){
@@ -351,11 +345,75 @@ BST_Node* delete(BST_Node *root, char name[]){
     new_del_node = minVal(delNode->right);
     save_val = new_del_node->cat;
 
-    //Delete the proper value
-    delete(root, save_val->name);
+    //Delete the successor node but preserve its cat pointer for reuse
+    root = deletePreserveCat(root, save_val->name);
 
     //Restore the data to the original node to be deleted
     delNode->cat = save_val;
+
+    return root;
+}
+
+BST_Node* deletePreserveCat(BST_Node *root, char name[]){
+    BST_Node *delNode = find(root, name);
+    BST_Node *par;
+    BST_Node *save_node;
+
+    if(delNode == NULL)
+        return root;
+
+    par = parent(root, delNode);
+
+    if(isLeaf(delNode)){
+        if(par == NULL){
+            free(delNode);
+            return NULL;
+        }
+        if(par->left == delNode){
+            par->left = NULL;
+            free(delNode);
+            return root;
+        }
+        if(par->right == delNode){
+            par->right = NULL;
+            free(delNode);
+            return root;
+        }
+    }
+
+    if(hasOnlyLeftChild(delNode)){
+        if(par == NULL){
+            save_node = delNode->left;
+            free(delNode);
+            return save_node;
+        }
+        if(par->left == delNode){
+            save_node = par->left;
+            par->left = par->left->left;
+            free(delNode);
+        } else {
+            save_node = par->right;
+            par->right = par->right->left;
+            free(delNode);
+        }
+        return root;
+    }
+
+    if(hasOnlyRightChild(delNode)){
+        if(par == NULL){
+            save_node = delNode->right;
+            free(delNode);
+            return save_node;
+        }
+        if(par->left == delNode){
+            par->left = par->left->right;
+            free(delNode);
+        } else {
+            par->right = par->right->right;
+            free(delNode);
+        }
+        return root;
+    }
 
     return root;
 }
@@ -451,7 +509,7 @@ void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
 
     //Getting rid of the results
     for(int i = 0; i < count; i++){
-        delete(root, results[i]);
+        root = delete(root, results[i]);
     } 
 
     free(results);
@@ -493,7 +551,12 @@ int main(void){
         if(query == 1){
             Cat *newCat = createCat(); //Create the cat
             BST_Node *newNode = createNode(newCat); //Create the node
-            root = insert(root, newNode); //Insert into the tree
+            if(root == NULL){
+                root = newNode;
+                printf("Insert: 0\n");
+            } else {
+                root = insert(root, newNode); //Insert into the tree
+            }
 
         }else if (query == 2){
             char name[MAX_NAME];
