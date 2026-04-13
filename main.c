@@ -97,7 +97,7 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
 
             //Print insertion confirmation
             int depth = heightFromRoot(root,value);
-            printf("Insert: %d\n", &depth);
+            printf("Insert: %d\n", depth);
         } else if(strcmp(value->cat->name, root->cat->name) < 0) {
 
             //element should be inserted to the left
@@ -108,7 +108,7 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
         
             //Print insertion confirmation
             int depth = heightFromRoot(root,value);
-            printf("Insert: %d\n", &depth);
+            printf("Insert: %d\n", depth);
         } else { //root and value have the same name
             
             // If value has more traits, replace root's data with value's
@@ -269,6 +269,8 @@ BST_Node* delete(BST_Node *root, char name[]){
     Cat* save_val;
 
     delNode = find(root, name); //Get pointer to the node to delete
+    if(delNode == NULL)
+        return root;
     par = parent(root, delNode); //Get the parent of the node to delete
 
     //Case 1: The node we're deleting is a leaf node
@@ -388,12 +390,12 @@ void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, in
         return;
     
     //Look on the left first
-    findCats(root, traitIndex, traitValue, results, count);
+    findCats(root->left, traitIndex, traitValue, results, count);
 
     //Add the cat's name to the array it it matches what we're looking for
     if(root->cat->traits[traitIndex] == traitValue){
         results[*count] = root->cat->name;
-        *count++;
+        (*count)++;
     }
 
     //Look on the right 
@@ -487,7 +489,7 @@ int main(void){
     BST_Node *root = NULL;
     scanf("%d", &n);
     for(int i = 0; i < n; i++){
-        scanf("%d", query);
+        scanf("%d", &query);
         if(query == 1){
             Cat *newCat = createCat(); //Create the cat
             BST_Node *newNode = createNode(newCat); //Create the node
@@ -496,7 +498,7 @@ int main(void){
         }else if (query == 2){
             char name[MAX_NAME];
             scanf("%s", name);
-            delete(root, name);
+            root = delete(root, name);
             printf("Deletion Complete\n");
         }else if (query == 3){
             int k, totalSize;
