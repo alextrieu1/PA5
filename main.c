@@ -37,7 +37,7 @@ BST_Node* deletePreserveCat(BST_Node *root, char name[]); // Deletes a node but 
 void kthElement(BST_Node *root, int value, int totalSize); //Finds the kth element in the tree
 void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, int *count);//Look for cats with the traits we're looking for
 void printTraits(BST_Node *root, int traitIndex, int traitValue);//Prints the results from findCats
-void deleteTraits(BST_Node *root, int traitIndex, int traitValue);//Deletes the results from findCats
+BST_Node* deleteTraits(BST_Node *root, int traitIndex, int traitValue);//Deletes the results from findCats
 void inOrder(BST_Node *root);//Prints the binary tree alphabetically 
 void printNode(BST_Node *node);//Prints the name, charmscore, and subtree size of a node
 void freePostOrder(BST_Node *root);//Frees the entire binary tree in post order
@@ -464,7 +464,7 @@ void printTraits(BST_Node *root, int traitIndex, int traitValue){
 }
 
 
-void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
+BST_Node* deleteTraits(BST_Node *root, int traitIndex, int traitValue){
     //Total size of the binary tree
     int total = addSize(root);
 
@@ -478,7 +478,7 @@ void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
     if(count == 0){
         printf("NONE REMOVED\n");
         free(results);
-        return;
+        return root;
     }
 
     //Getting rid of the results
@@ -487,6 +487,7 @@ void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
     } 
     printf("%d\n", count);
     free(results);
+    return root;
 }
 
 void inOrder(BST_Node *root){
@@ -549,7 +550,7 @@ int main(void){
         }else if (query == 5){
             int traitIndex, traitValue;
             scanf("%d %d", &traitIndex, &traitValue);
-            deleteTraits(root, traitIndex, traitValue);
+            root = deleteTraits(root, traitIndex, traitValue);
         }else if (query == 6){
             if(root == NULL){
                 printf("EMPTY\n");
