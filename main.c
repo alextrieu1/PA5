@@ -24,7 +24,6 @@ typedef struct BST_Node{
 Cat* createCat(void); //Creates a Cat, itializes its values and returns it
 BST_Node* createNode(Cat* value); //Creates a node, initializes its values and returns it
 BST_Node* insert(BST_Node* root, BST_Node* value, int node); //Inserts a node into BST
-int heightFromRoot(BST_Node *root, BST_Node *node); //Gets the depth of a node
 BST_Node* compareTraits(BST_Node* root, BST_Node* value); //Compares the amount of traits set to 1 and returns the node with the most
 int addSize(BST_Node *node); //Gets the size of the BST and returns it
 BST_Node *find(BST_Node *root, char name[]); //Takes in a name and looks for it in the Binary Tree
@@ -34,6 +33,7 @@ int isLeaf(BST_Node *node); //Returns 1 if node is a leaf node, 0 otherwise
 int hasOnlyLeftChild(BST_Node *node); //Returns 1 if node has a left child and no right child 
 int hasOnlyRightChild(BST_Node *node); //Returns 1 if node has a right child and no left child 
 BST_Node* delete(BST_Node *root, char name[]); // Deletes node via name
+BST_Node* deletePreserveCat(BST_Node *root, char name[]); // Deletes a node but preserves the cat pointer
 void kthElement(BST_Node *root, int value, int totalSize); //Finds the kth element in the tree
 void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, int *count);//Look for cats with the traits we're looking for
 void printTraits(BST_Node *root, int traitIndex, int traitValue);//Prints the results from findCats
@@ -42,7 +42,7 @@ void inOrder(BST_Node *root);//Prints the binary tree alphabetically
 void printNode(BST_Node *node);//Prints the name, charmscore, and subtree size of a node
 void freePostOrder(BST_Node *root);//Frees the entire binary tree in post order
 void freeNode(BST_Node *node);//Free a node
-BST_Node* deletePreserveCat(BST_Node *root, char name[]); // Deletes a node but preserves the cat pointer
+
 
 Cat* createCat(void){
     char name[MAX_NAME], breed[MAX_NAME];
@@ -185,7 +185,7 @@ BST_Node *parent(BST_Node *root, BST_Node *node){
     //Root is empty or root is being deleted return NULL;
     if(root == NULL || root == node)
         return NULL;
-    
+
     //Root is the direct parent of node
     if(root->left == node || root->right == node)
         return root;
@@ -234,10 +234,11 @@ BST_Node* delete(BST_Node *root, char name[]){
     Cat* save_val;
 
     delNode = find(root, name); //Get pointer to the node to delete
+
     if(delNode == NULL)
         return root;
     par = parent(root, delNode); //Get the parent of the node to delete
-
+    
     //Case 1: The node we're deleting is a leaf node
     if(isLeaf(delNode)){
 
@@ -394,7 +395,7 @@ BST_Node* deletePreserveCat(BST_Node *root, char name[]){
 void kthElement(BST_Node *root, int k, int totalSize){
 
     //If k is greater than the total number of nodes in the tree
-    if(root == NULL){
+    if(k > totalSize || root == NULL){
         printf("NO SMALLEST ELEMENT FOUND\n");
         return;
     }
