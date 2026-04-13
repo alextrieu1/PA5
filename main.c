@@ -25,6 +25,7 @@ Cat* createCat(void); //Creates a Cat, itializes its values and returns it
 BST_Node* createNode(Cat* value); //Creates a node, initializes its values and returns it
 BST_Node* insert(BST_Node* root, BST_Node* value); //Inserts a node into BST
 BST_Node* compareTraits(BST_Node* root, BST_Node* value); //Compares the amount of traits set to 1 and returns the node with the most
+int addSize(BST_Node *node); //Gets the size of the BST and returns it
 
 Cat* createCat(void){
     char name[MAX_NAME], breed[MAX_NAME];
@@ -78,6 +79,7 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
             else
                 root->right = value;
         } else if(strcmp(value->cat->name, root->cat->name) < 0) {
+
             //element should be inserted to the left
             if(root->left != NULL)
                 root->left = insert(root->left, value);
@@ -103,8 +105,11 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
         }
     } 
 
+    //Updating the sizes after inserting
+    addSize(root);
     return root;
 }
+
 
 BST_Node* compareTraits(BST_Node* root, BST_Node* value){
     Cat* t1 = root->cat;
@@ -132,7 +137,14 @@ BST_Node* compareTraits(BST_Node* root, BST_Node* value){
         return value;
 }
 
+int addSize(BST_Node *node){
+    if(node == NULL)
+        return 0; 
 
+    //Finding the total number of nodes by adding the sizes of the left and right nodes and adding 1. 
+    node->subtree_size = addSize(node->left) + addSize(node->right) + 1;
+    return node->subtree_size;
+}
 
 
 
