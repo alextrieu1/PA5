@@ -23,7 +23,7 @@ typedef struct BST_Node{
 
 Cat* createCat(void); //Creates a Cat, itializes its values and returns it
 BST_Node* createNode(Cat* value); //Creates a node, initializes its values and returns it
-BST_Node* insert(BST_Node* root, BST_Node* value); //Inserts a node into BST
+BST_Node* insert(BST_Node* root, BST_Node* value, int node); //Inserts a node into BST
 int heightFromRoot(BST_Node *root, BST_Node *node); //Gets the depth of a node
 BST_Node* compareTraits(BST_Node* root, BST_Node* value); //Compares the amount of traits set to 1 and returns the node with the most
 int addSize(BST_Node *node); //Gets the size of the BST and returns it
@@ -84,7 +84,7 @@ BST_Node* createNode(Cat* value){
     return temp;
 }
 
-BST_Node* insert(BST_Node* root, BST_Node* value){
+BST_Node* insert(BST_Node* root, BST_Node* value, int depth){
     if(root == NULL)
         return value;
     else{
@@ -92,20 +92,18 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
         //element should be inserted to the right
         if(strcmp(value->cat->name, root->cat->name) > 0){
             if(root->right != NULL)    
-                root->right = insert(root->right, value);
+                root->right = insert(root->right, value , depth + 1);
             else {
                 root->right = value;
-                int depth = heightFromRoot(root,value);
                 printf("Insert: %d\n", depth);
             }
         } else if(strcmp(value->cat->name, root->cat->name) < 0) {
 
             //element should be inserted to the left
             if(root->left != NULL)
-                root->left = insert(root->left, value);
+                root->left = insert(root->left, value,depth + 1);
             else {
                 root->left = value;
-                int depth = heightFromRoot(root,value);
                 printf("Insert: %d\n", depth);
             }
         } else { //root and value have the same name
@@ -129,33 +127,6 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
     //Updating the sizes after inserting
     addSize(root);
     return root;
-}
-
-//Will return the depth of the node
-int heightFromRoot(BST_Node *root, BST_Node *node){
-    
-    //Return -1 if root is NULL
-    if(root == NULL){
-        return -1;
-    }
-    
-    if(root == node){
-        return 0;
-    }
-
-    // Node is on the right
-    int cmp = strcmp(node->cat->name, root->cat->name);
-    int h;
-    
-    if(cmp > 0)
-        h = heightFromRoot(root->right, node);
-    else 
-        h = heightFromRoot(root->left, node);
-
-    if(h == -1)
-        return -1;
-    else
-        return h + 1;
 }
 
 BST_Node* compareTraits(BST_Node* root, BST_Node* value){
@@ -287,7 +258,7 @@ BST_Node* delete(BST_Node *root, char name[]){
             par->right = NULL;
             freeNode(delNode);
         }
-
+        addSize(root);
         return root;
     }
 
@@ -313,6 +284,7 @@ BST_Node* delete(BST_Node *root, char name[]){
             par->right = par->right->left;
             freeNode(save_node);
         }
+        addSize(root);
         return root;
     }
 
@@ -338,6 +310,7 @@ BST_Node* delete(BST_Node *root, char name[]){
             par->right = par->right->right;
             freeNode(save_node);
         }
+        addSize(root);
         return root;
     }
 
@@ -350,7 +323,7 @@ BST_Node* delete(BST_Node *root, char name[]){
 
     //Restore the data to the original node to be deleted
     delNode->cat = save_val;
-
+    addSize(root);
     return root;
 }
 
@@ -421,7 +394,7 @@ BST_Node* deletePreserveCat(BST_Node *root, char name[]){
 void kthElement(BST_Node *root, int k, int totalSize){
 
     //If k is greater than the total number of nodes in the tree
-    if(k > totalSize || root == NULL){
+    if(root == NULL){
         printf("NO SMALLEST ELEMENT FOUND\n");
         return;
     }
@@ -511,7 +484,7 @@ void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
     for(int i = 0; i < count; i++){
         root = delete(root, results[i]);
     } 
-
+    printf("%d\n", count);
     free(results);
 }
 
@@ -555,7 +528,7 @@ int main(void){
                 root = newNode;
                 printf("Insert: 0\n");
             } else {
-                root = insert(root, newNode); //Insert into the tree
+                root = insert(root, newNode, 1); //Insert into the tree
             }
 
         }else if (query == 2){
