@@ -26,6 +26,12 @@ BST_Node* createNode(Cat* value); //Creates a node, initializes its values and r
 BST_Node* insert(BST_Node* root, BST_Node* value); //Inserts a node into BST
 BST_Node* compareTraits(BST_Node* root, BST_Node* value); //Compares the amount of traits set to 1 and returns the node with the most
 int addSize(BST_Node *node); //Gets the size of the BST and returns it
+BST_Node *find(BST_Node *root, char name[]); //Takes in a name and looks for it in the Binary Tree
+BST_Node* minVal(BST_Node *root); //Finds the minimum node in a given binary tree
+BST_Node* maxVal(BST_Node *root); //Finds the maximum node in a given binary tree
+int isLeaf(BST_Node *node); //Returns 1 if node is a leaf node, 0 otherwise 
+int hasOnlyLeftChild(BST_Node *node); //Returns 1 if node has a left child and no right child 
+int hasOnlyRightChild(BST_Node *node); //Returns 1 if node has a right child and no left child 
 
 Cat* createCat(void){
     char name[MAX_NAME], breed[MAX_NAME];
@@ -126,10 +132,6 @@ BST_Node* compareTraits(BST_Node* root, BST_Node* value){
             n2++;
     }
 
-    //Freeing temp cats
-    free(t1);
-    free(t2);
-
     //The existing node is replaced only if the new cat has strictly more traits set to 1
     if(n1 >= n2)
         return root;
@@ -146,9 +148,74 @@ int addSize(BST_Node *node){
     return node->subtree_size;
 }
 
+BST_Node *find(BST_Node *root, char name[]){
 
+    //We haven't found the name
+    if(root == NULL){
+        return NULL;
+    }
 
+    //We've found the name
+    if(strcmp(root->cat->name, name) == 0)
+        return root;
 
+    //The name is less than temp's name, go left
+    else if (strcmp(root->cat->name, name) > 0)
+        return find(root->left, name);
+
+    //The name is greater than temp's name, go right
+    else
+        return find(root->right,name);
+}
+
+BST_Node *parent(BST_Node *root, BST_Node *node){
+    
+    //Root is empty or root is being deleted return NULL;
+    if(root == NULL || root == node)
+        return NULL;
+    
+    //Root is the direct parent of node
+    if(root->left == node || root->right == node)
+        return root;
+    
+    //Look for node's parents in the left side of the tree
+    if(strcmp(root->cat->name, node->cat->name) > 0)
+        return parent(root->left, node);
+    
+    //Look for node's parents in the right side of the tree
+    if(strcmp(root->cat->name, node->cat->name) < 0)
+        return parents(root->right, node);
+    return NULL; //Catch any other extraneous cases 
+}
+
+//Finds the minimum value in a given binary tree
+BST_Node* minVal(BST_Node *root){
+    if(root->left == NULL)
+        return root;
+    else   
+        return minVal(root->left);
+}
+
+//Finds the maximum value in a given binary tree
+BST_Node* maxVal(BST_Node *root){
+    if(root->right == NULL)
+        return root;
+    else 
+        return maxVal(root->right);
+}
+
+//Returns 1 if node is a leaf node, 0 otherwise
+int isLeaf(BST_Node *node){
+    return (node->left == NULL && node->right == NULL);
+}
+
+int hasOnlyLeftChild(BST_Node *node){
+    return (node->left != NULL && node->right == NULL);
+}
+
+int hasOnlyRightChild(BST_Node *node){
+    return (node->left == NULL && node->right != NULL);
+}
 
 int main(void){
     int query, n;
