@@ -103,10 +103,7 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
             } else {
 
                 //If root has greater than or the same amount of traits, get rid of value
-                free(value->cat->name);
-                free(value->cat->breed);
-                free(value->cat);
-                free(value);
+                freeNode(value);
             }
         }
     } 
@@ -215,6 +212,107 @@ int hasOnlyLeftChild(BST_Node *node){
 
 int hasOnlyRightChild(BST_Node *node){
     return (node->left == NULL && node->right != NULL);
+}
+
+BST_Node* delete(BST_Node *root, char name[]){
+    BST_Node *delNode, *new_del_node, *save_node, *par;
+    Cat* save_val;
+
+    delNode = find(root, name); //Get pointer to the node to delete
+    par = parent(root, delNode); //Get the parent of the node to delete
+
+    //Case 1: The node we're deleting is a leaf node
+    if(isLeaf(delNode)){
+
+        //Delete if it is the only node in the tree
+        if(par == NULL){
+            freeNode(root);
+            return NULL;
+        }
+
+        //Delete if node is a left child
+        if(par->left == delNode){
+            par->left = NULL;
+            freeNode(delNode);
+        }
+
+        //Delte if node is a right child
+        if(par->right == delNode){
+            par->right = NULL;
+            freeNode(delNode);
+        }
+
+        return root;
+    }
+
+    // Case 2.1: Delete the node that only has a left child
+    if(hasOnlyLeftChild(delNode)){
+
+        //Deleting the root node of the tree
+        if(par == NULL){
+            save_node = delNode->left;
+            freeNode(delNode);
+            return save_node; //Return the new root of the tree
+        }
+
+        //Delete if node is a left child
+        if(par->left == delNode){
+            save_node = par->left; //Save the node to delete
+            par->left = par->left->left; //Read just the parent pointer
+            freeNode(save_node); //Free the memory for the deleted node
+
+        //Delete the node if it is a right child 
+        } else{
+            save_node = par->right;
+            par->right = par->right->left;
+            freeNode(save_node);
+        }
+        return root;
+    }
+
+    //Case 2.2: Delete the node that only has a right child
+    if(hasOnlyRightChild(delNode)){
+
+        //Root node is the one to delete
+        if(par == NULL){
+            save_node = delNode->right;
+            freeNode(delNode);
+            return save_node;
+        }
+
+        //Delete the node if it is a left child
+        if(par->left == delNode){
+            save_node = par->left;
+            par->left = par->left->right;
+            freeNode(delNode);
+
+        //Delete the node if it is a right child
+        } else{
+            save_node = par->right;
+            par->right = par->right->right;
+            freeNode(save_node);
+        }
+        return root;
+    }
+
+    //At this point it means delNode has two children.
+    new_del_node = minVal(delNode->right);
+    save_val = new_del_node->cat;
+
+    //Delete the proper value
+    delete(root, save_val->name);
+
+    //Restore the data to the original node to be deleted
+    delNode->cat = save_val;
+
+    return root;
+}
+
+void freeNode(BST_Node *node){
+    free(node->cat->name);
+    free(node->cat->breed);
+    free(node->cat);
+    free(node);
 }
 
 int main(void){
