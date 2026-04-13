@@ -83,10 +83,23 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
                 root->left = insert(root->left, value);
             else 
                 root->left = value;
-        } else {
-            //root and value have the same name
-            if(compareTraits(root,value) == value)
+        } else { //root and value have the same name
+            
+            // If value has more traits, replace root's data with value's
+            if(compareTraits(root,value) == value){
+                free(root->cat->name);
+                free(root->cat->breed);
+                free(root->cat);
                 root->cat = value->cat;
+                free(value);
+            } else {
+
+                //If root has greater than or the same amount of traits, get rid of value
+                free(value->cat->name);
+                free(value->cat->breed);
+                free(value->cat);
+                free(value);
+            }
         }
     } 
 
@@ -127,13 +140,14 @@ BST_Node* compareTraits(BST_Node* root, BST_Node* value){
 
 int main(void){
     int query, n;
+    BST_Node *root = NULL;
     scanf("%d", &n);
     for(int i = 0; i < n; i++){
         scanf("%d", query);
         if(query == 1){
             Cat *newCat = createCat(); //Create the cat
             BST_Node *newNode = createNode(newCat); //Create the node
-
+            root = insert(root, newNode); //Insert into the tree
         }else if (query == 2){
         
         }else if (query == 3){
