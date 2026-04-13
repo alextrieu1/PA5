@@ -84,6 +84,9 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
                 root->right = insert(root->right, value);
             else
                 root->right = value;
+
+            int depth = heightFromRoot(root,value);
+            printf("Insert: %d\n", &depth);
         } else if(strcmp(value->cat->name, root->cat->name) < 0) {
 
             //element should be inserted to the left
@@ -91,6 +94,9 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
                 root->left = insert(root->left, value);
             else 
                 root->left = value;
+
+            int depth = heightFromRoot(root,value);
+            printf("Insert: %d\n", &depth);
         } else { //root and value have the same name
             
             // If value has more traits, replace root's data with value's
@@ -100,11 +106,11 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
                 free(root->cat);
                 root->cat = value->cat;
                 free(value);
+                printf("Replaced\n");
             } else {
 
                 //If root has greater than or the same amount of traits, get rid of value
                 freeNode(value);
-                printf("Replaced\n");
             }
         }
     } 
@@ -114,6 +120,37 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
     return root;
 }
 
+//Will return the depth of the node
+int heightFromRoot(BST_Node *root, BST_Node *node){
+    
+    //Return -1 if root is NULL
+    if(root == NULL){
+        return -1;
+    }
+    
+    if(root == node){
+        return 0;
+    }
+
+    // Node is on the right
+    if(strcmp(node->cat->name, root->cat->name) > 0){
+        int h = (heightFromRoot(root->right, node));
+
+        //If h == -1, the node was never found
+        if(h == -1)
+            return -1;
+        else 
+            return h + 1;
+    
+    //Node is on the left
+    } else if (strcmp(node->cat->name, root->cat->name) < 0){
+        int h = (heightFromRoot(root->left, node)); 
+        if(h == -1)
+            return -1;
+        else 
+            return h + 1;
+    }
+}
 
 BST_Node* compareTraits(BST_Node* root, BST_Node* value){
     Cat* t1 = root->cat;
