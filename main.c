@@ -231,7 +231,7 @@ BST_Node *parent(BST_Node *root, BST_Node *node){
     
     //Look for node's parents in the right side of the tree
     if(strcmp(root->cat->name, node->cat->name) < 0)
-        return parents(root->right, node);
+        return parent(root->right, node);
     return NULL; //Catch any other extraneous cases 
 }
 
