@@ -37,6 +37,9 @@ BST_Node* delete(BST_Node *root, char name[]); // Deletes node via name
 void kthElement(BST_Node *root, int value, int totalSize); //Finds the kth element in the tree
 void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, int *count);//Look for cats with the traits we're looking for
 void printTraits(BST_Node *root, int traitIndex, int traitValue);//Prints the results from findCats
+void deleteTraits(BST_Node *root, int traitIndex, int traitValue);//Deletes the results from findCats
+
+void printNode(BST_Node *node);//Prints the name, charmscore, and subtree size of a node
 void freeNode(BST_Node *node);//Free a node
 
 Cat* createCat(void){
@@ -451,6 +454,18 @@ void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
     free(results);
 }
 
+void inOrder(BST_Node *root){
+    if(root != NULL){
+        inOrder(root->left);
+        printNode(root);
+        inOrder(root->right);
+    }
+}
+
+void printNode(BST_Node *node){
+    printf("%s %d %d\n", node->cat->name, node->cat->charm, node->subtree_size);
+}
+
 void freeNode(BST_Node *node){
     free(node->cat->name);
     free(node->cat->breed);
@@ -488,10 +503,13 @@ int main(void){
             scanf("%d %d", &traitIndex, &traitValue);
             deleteTraits(root, traitIndex, traitValue);
         }else if (query == 6){
-            
+            if(root == NULL){
+                printf("EMPTY\n");
+            }
+            inOrder(root);
         }
     }
-    
+
     
     return 0;
 }
