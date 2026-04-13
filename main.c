@@ -24,6 +24,7 @@ typedef struct BST_Node{
 Cat* createCat(void); //Creates a Cat, itializes its values and returns it
 BST_Node* createNode(Cat* value); //Creates a node, initializes its values and returns it
 BST_Node* insert(BST_Node* root, BST_Node* value); //Inserts a node into BST
+int heightFromRoot(BST_Node *root, BST_Node *node); //Gets the depth of a node
 BST_Node* compareTraits(BST_Node* root, BST_Node* value); //Compares the amount of traits set to 1 and returns the node with the most
 int addSize(BST_Node *node); //Gets the size of the BST and returns it
 BST_Node *find(BST_Node *root, char name[]); //Takes in a name and looks for it in the Binary Tree
@@ -32,6 +33,11 @@ BST_Node* maxVal(BST_Node *root); //Finds the maximum node in a given binary tre
 int isLeaf(BST_Node *node); //Returns 1 if node is a leaf node, 0 otherwise 
 int hasOnlyLeftChild(BST_Node *node); //Returns 1 if node has a left child and no right child 
 int hasOnlyRightChild(BST_Node *node); //Returns 1 if node has a right child and no left child 
+BST_Node* delete(BST_Node *root, char name[]); // Deletes node via name
+void kthElement(BST_Node *root, int value, int totalSize); //Finds the kth element in the tree
+void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, int *count);//Look for cats with the traits we're looking for
+void printTraits(BST_Node *root, int traitIndex, int traitValue);//Prints the results from findCats
+void freeNode(BST_Node *node);//Free a node
 
 Cat* createCat(void){
     char name[MAX_NAME], breed[MAX_NAME];
@@ -85,6 +91,7 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
             else
                 root->right = value;
 
+            //Print insertion confirmation
             int depth = heightFromRoot(root,value);
             printf("Insert: %d\n", &depth);
         } else if(strcmp(value->cat->name, root->cat->name) < 0) {
@@ -94,7 +101,8 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
                 root->left = insert(root->left, value);
             else 
                 root->left = value;
-
+        
+            //Print insertion confirmation
             int depth = heightFromRoot(root,value);
             printf("Insert: %d\n", &depth);
         } else { //root and value have the same name
@@ -346,6 +354,103 @@ BST_Node* delete(BST_Node *root, char name[]){
     return root;
 }
 
+void kthElement(BST_Node *root, int k, int totalSize){
+
+    //If k is greater than the total number of nodes in the tree
+    if(k > totalSize || root == NULL){
+        printf("NO SMALLEST ELEMENT FOUND\n");
+        return;
+    }
+
+    //Will get the number of nodes in the left binary tree
+    int numNodesLeft = addSize(root->left);
+
+    //There are more nodes than k, move left
+    if(k <= numNodesLeft)
+        kthElement(root->left, k, totalSize);
+
+    //We've found the kth smallest
+    else if (numNodesLeft == k -1){
+        printf("%s %s %d\n", root->cat->name, root->cat->breed, root->cat->charm);
+        return;
+    } else 
+        kthElement(root->right, k-numNodesLeft-1, totalSize);
+    return;
+}
+
+//Finds cats with a traitvalue at an index and puts the names into an array
+void findCats(BST_Node *root, int traitIndex, int traitValue, char **results, int *count){
+    if(root == NULL)
+        return;
+    
+    //Look on the left first
+    findCats(root, traitIndex, traitValue, results, count);
+
+    //Add the cat's name to the array it it matches what we're looking for
+    if(root->cat->traits[traitIndex] == traitValue){
+        results[*count] = root->cat->name;
+        *count++;
+    }
+
+    //Look on the right 
+    findCats(root->right, traitIndex, traitValue, results, count);
+}
+
+void printTraits(BST_Node *root, int traitIndex, int traitValue){
+    
+    //Total size of the binary tree
+    int total = addSize(root);
+
+    //Dyanamically allocating memory
+    char **results = malloc(total * sizeof(char*));
+    int count = 0;
+
+    findCats(root, traitIndex, traitValue, results, &count);
+
+    //No cats matched what we're looking for 
+    if(count == 0){
+        printf("NONE FOUND\n");
+        free(results);
+        return;
+    }
+
+    //Printing results 
+    printf("%s:", TRAIT_NAMES[traitIndex]);
+    for(int i = 0; i < count; i++){
+        printf(" %s", results[i]);
+    }
+
+    printf("\n");
+
+    free(results);
+}
+
+
+void deleteTraits(BST_Node *root, int traitIndex, int traitValue){
+    //Total size of the binary tree
+    int total = addSize(root);
+
+    //Dyanamically allocating memory
+    char **results = malloc(total * sizeof(char*));
+    int count = 0;
+
+    findCats(root, traitIndex, traitValue, results, &count);
+
+    //No cats matched what we're looking for 
+    if(count == 0){
+        printf("NONE REMOVED\n");
+        free(results);
+        return;
+    }
+
+    //Getting rid of the results
+    for(int i = 0; i < count; i++){
+        delete(root, results[i]);
+    } 
+
+    free(results);
+}
+
 void freeNode(BST_Node *node){
     free(node->cat->name);
     free(node->cat->breed);
@@ -370,13 +475,20 @@ int main(void){
             delete(root, name);
             printf("Deletion Complete\n");
         }else if (query == 3){
-        
+            int k, totalSize;
+            scanf("%d", &k);
+            totalSize = addSize(root);
+            kthElement(root, k, totalSize);
         }else if (query == 4){
-        
+            int traitIndex, traitValue;
+            scanf("%d %d", &traitIndex, &traitValue);
+            printTraits(root, traitIndex, traitValue);
         }else if (query == 5){
-        
+            int traitIndex, traitValue;
+            scanf("%d %d", &traitIndex, &traitValue);
+            deleteTraits(root, traitIndex, traitValue);
         }else if (query == 6){
-        
+            
         }
     }
     
