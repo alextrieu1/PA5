@@ -104,6 +104,7 @@ BST_Node* insert(BST_Node* root, BST_Node* value){
 
                 //If root has greater than or the same amount of traits, get rid of value
                 freeNode(value);
+                printf("Replaced\n");
             }
         }
     } 
@@ -325,8 +326,12 @@ int main(void){
             Cat *newCat = createCat(); //Create the cat
             BST_Node *newNode = createNode(newCat); //Create the node
             root = insert(root, newNode); //Insert into the tree
+
         }else if (query == 2){
-        
+            char name[MAX_NAME];
+            scanf("%s", name);
+            delete(root, name);
+            printf("Deletion Complete\n");
         }else if (query == 3){
         
         }else if (query == 4){
